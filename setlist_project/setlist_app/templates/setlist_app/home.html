@@ -21,6 +21,7 @@
     <a href="{% url 'add_song' %}">Add New Song</a>
 
     <h2>Set 1</h2>
+    <p><strong>Total Duration: {{ set1_duration }} mins</strong></p>
     <ul>
         {% for item in set1 %}
             <li>{{ item.song.title }} ({{ item.song.duration }} mins)
@@ -30,6 +31,7 @@
     </ul>
 
     <h2>Set 2</h2>
+    <p><strong>Total Duration: {{ set2_duration }} mins</strong></p>
     <ul>
         {% for item in set2 %}
             <li>{{ item.song.title }} ({{ item.song.duration }} mins)

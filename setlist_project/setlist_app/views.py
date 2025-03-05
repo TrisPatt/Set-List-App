@@ -11,8 +11,8 @@ def home(request):
     set2 = Setlist.objects.filter(set_number=2)
 
     # get duration of each set
-    set1_duration = sum(song.song.duration for song in set1)
-    set2_duration = sum(song.song.duration for song in set1)
+    set1_duration = round(sum(song.song.duration for song in set1), 2)
+    set2_duration = round(sum(song.song.duration for song in set1), 2)
     return render(request, 'setlist_app/home.html', {"songs": songs, "set1": set1, "set2": set2, "set1_duration": set1_duration,
         "set2_duration": set2_duration,})
 
@@ -36,3 +36,6 @@ def remove_from_set(request, setlist_id):
     setlist_entry.delete()
     return redirect('home')
 
+def clear_all_from_set(request, set_number):
+    Setlist.objects.filter(set_number=set_number).delete()
+    return redirect('home')  

@@ -7,9 +7,9 @@ register = template.Library()
 def float_to_time(value):
     """Converts float minutes to MM:SS format."""
     try:
-        total_seconds = int(value * 60)  
+        total_seconds = int(value * 60)
         minutes = total_seconds // 60
         seconds = total_seconds % 60
         return f"{minutes}:{seconds:02d}"  
     except (TypeError, ValueError):
-        return "0:00"  
+        return "0:00"

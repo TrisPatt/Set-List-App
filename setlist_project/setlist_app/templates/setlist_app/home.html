@@ -14,18 +14,21 @@
     <ul>
         {% for song in songs %}
             <li>
-                {{ song.title }} ({{ song.duration|float_to_time }} mins)
+                {{ song.title }} ({{ song.duration|floatformat:2 }} mins)
                 <a href="{% url 'add_to_set' song.id 1 %}">Add to Set 1</a>
                 <a href="{% url 'add_to_set' song.id 2 %}">Add to Set 2</a>
             </li>
         {% endfor %}
     </ul>
     <a href="{% url 'add_song' %}">Add New Song</a>
+    <a href="{% url 'clear_all_songs' %}" onclick="return confirm('Are you sure you want to clear all available songs?');">
+        <button>Clear Available Songs</button>
+    </a>
 
     <h2>Set 1</h2>
     <ol>
         {% for item in set1 %}
-            <li>{{ item.song.title }} ({{ item.song.duration|float_to_time }} mins)
+            <li>{{ item.song.title }} ({{ item.song.duration }} mins)
                 <a href="{% url 'remove_from_set' item.id %}">Remove</a>
             </li>
         {% endfor %}
@@ -33,12 +36,12 @@
     <a href="{% url 'clear_all_from_set' 1 %}" onclick="return confirm('Are you sure you want to clear Set 1?');">
         <button>Clear set 1</button>
 
-    <p><strong>Total Duration: {{ set1_duration|float_to_time }} mins</strong></p>
+        <p><strong>Total Duration: {{ set1_duration }}</strong></p>
 
     <h2>Set 2</h2>
     <ol>
         {% for item in set2 %}
-            <li>{{ item.song.title }} ({{ item.song.duration|float_to_time }} mins)
+            <li>{{ item.song.title }} ({{ item.song.duration }} mins)
                 <a href="{% url 'remove_from_set' item.id %}">Remove</a>
             </li>
         {% endfor %}
@@ -46,6 +49,6 @@
     <a href="{% url 'clear_all_from_set' 2 %}" onclick="return confirm('Are you sure you want to clear Set 2?');">
         <button>Clear set 2</button>
 
-    <p><strong>Total Duration: {{ set2_duration|float_to_time }} mins</strong></p>
+        <p><strong>Total Duration: {{ set2_duration }}</strong></p>
 </body>
 </html>

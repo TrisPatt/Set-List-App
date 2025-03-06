@@ -2,7 +2,7 @@ from django.db import models
 
 class Song(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    duration = models.FloatField(help_text="Duration in minutes")
+    duration = models.DecimalField(max_digits=5, decimal_places=2, help_text="Duration in minutes")
 
     def __str__(self):
         return f"{self.title} ({self.duration} mins)"

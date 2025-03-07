@@ -1,11 +1,19 @@
 from django.db import models
+from datetime import timedelta
 
 class Song(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    duration = models.FloatField(help_text="Duration in minutes")  
+    duration = models.DurationField(help_text="Duration in MM:SS format")  # Changed to DurationField
 
     def __str__(self):
-        return f"{self.title} ({self.duration:.2f} mins)"
+        minutes, seconds = divmod(self.duration.total_seconds(), 60)
+        return f"{self.title} ({int(minutes)}:{int(seconds):02d})"
+
+    def formatted_duration(self):
+        """Returns duration in MM:SS format."""
+        minutes, seconds = divmod(self.duration.total_seconds(), 60)
+        return f"{int(minutes)}:{int(seconds):02d}"
+
 
 class Setlist(models.Model):
     SET_CHOICES = [(1, "Set 1"), (2, "Set 2")]

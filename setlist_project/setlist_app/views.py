@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Song, Setlist
 from .forms import SongForm
+from datetime import timedelta
 
 def home(request):
     # Fetch all available songs
@@ -10,27 +11,26 @@ def home(request):
     set1 = Setlist.objects.filter(set_number=1)
     set2 = Setlist.objects.filter(set_number=2)
 
-    # Correct conversion of minutes to seconds
-    set1_total_seconds = sum(int(float(item.song.duration) * 60) for item in set1)
-    set2_total_seconds = sum(int(float(item.song.duration) * 60) for item in set2)
+    # Calculate total set duration
+    set1_total_duration = sum((item.song.duration for item in set1), timedelta())
+    set2_total_duration = sum((item.song.duration for item in set2), timedelta())
 
-    # Convert total seconds back to MM:SS format
-    def format_duration(total_seconds):
-        minutes = total_seconds // 60  # Whole minutes
-        seconds = total_seconds % 60   # Remaining seconds
-        return f"{minutes}:{seconds:02d}"  # Format as MM:SS
+    # Convert to MM:SS format
+    def format_duration(duration):
+        total_seconds = int(duration.total_seconds())
+        minutes, seconds = divmod(total_seconds, 60)
+        return f"{minutes}:{seconds:02d}"
 
-    set1_duration = format_duration(set1_total_seconds)
-    set2_duration = format_duration(set2_total_seconds)
+    set1_duration = format_duration(set1_total_duration)
+    set2_duration = format_duration(set2_total_duration)
 
     return render(request, 'setlist_app/home.html', {
         "songs": songs,
         "set1": set1,
         "set2": set2,
-        "set1_duration": set1_duration,  
+        "set1_duration": set1_duration,
         "set2_duration": set2_duration,
     })
-
 
 def add_song(request):
     if request.method == "POST":

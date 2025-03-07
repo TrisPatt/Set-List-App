@@ -14,7 +14,7 @@
     <ul>
         {% for song in songs %}
             <li>
-                {{ song.title }} ({{ song.duration|floatformat:2 }} mins)
+                {{ song.title }} ({{ song.formatted_duration }} mins)
                 <a href="{% url 'add_to_set' song.id 1 %}">Add to Set 1</a>
                 <a href="{% url 'add_to_set' song.id 2 %}">Add to Set 2</a>
             </li>
@@ -28,7 +28,7 @@
     <h2>Set 1</h2>
     <ol>
         {% for item in set1 %}
-            <li>{{ item.song.title }} ({{ item.song.duration }} mins)
+            <li>{{ item.song.title }} ({{ item.song.formatted_duration }} mins)
                 <a href="{% url 'remove_from_set' item.id %}">Remove</a>
             </li>
         {% endfor %}
@@ -41,7 +41,7 @@
     <h2>Set 2</h2>
     <ol>
         {% for item in set2 %}
-            <li>{{ item.song.title }} ({{ item.song.duration }} mins)
+            <li>{{ item.song.title }} ({{ item.song.formatted_duration }} mins)
                 <a href="{% url 'remove_from_set' item.id %}">Remove</a>
             </li>
         {% endfor %}

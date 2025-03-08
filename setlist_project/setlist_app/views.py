@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from datetime import timedelta
 from .models import Song, Setlist
 from .forms import SongForm
-from datetime import timedelta
+
 
 def home(request):
     # Fetch all available songs
@@ -43,8 +45,15 @@ def add_song(request):
     return render(request, 'setlist_app/add_song.html', {"form": form})
 
 def add_to_set(request, song_id, set_number):
-    song = Song.objects.get(id=song_id)
-    Setlist.objects.create(song=song, set_number=set_number)
+    """Adds a song to the selected set, but prevents duplicate entries."""
+    song = get_object_or_404(Song, id=song_id)
+
+    # Check if the song is already in the selected set
+    if Setlist.objects.filter(song=song, set_number=set_number).exists():
+        messages.warning(request, f"'{song.title}' is already in Set {set_number}.")
+    else:
+        Setlist.objects.create(song=song, set_number=set_number)
+    
     return redirect('home')
 
 def remove_from_set(request, setlist_id):

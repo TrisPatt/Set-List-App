@@ -2,12 +2,17 @@
 /* Base styles */
 body {
     font-family: Arial, Helvetica, sans-serif;
-    color: red;
-    margin: 0;
-    padding: 0;
+    color: #ff0000;
+    margin: 15px;
+    padding: 15px;
 
 }
 
 h1 {
     color: brown;
+}
+
+li {
+    margin-top: 10px;
+    margin-right: 10px;
 }

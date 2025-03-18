@@ -5,6 +5,7 @@ body {
     color: #ff0000;
     margin: 15px;
     padding: 15px;
+    background-color: blue;
 
 }
 
@@ -18,10 +19,11 @@ li {
     padding-left: 0px;
 }
 
-.list-group-item {
+.drag-handle {
     cursor: grab; /* Hand cursor when hovering */
 }
 
-.list-group-item:active {
+.drag-handle:active {
     cursor: grabbing; /* Closed hand when dragging */
 }
+

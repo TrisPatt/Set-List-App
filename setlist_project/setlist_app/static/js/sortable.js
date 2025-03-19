@@ -1,22 +1,41 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const availableSongs = document.getElementById("available-songs");
     const set1List = document.getElementById("set1-list");
     const set2List = document.getElementById("set2-list");
 
-    function setupSortable(list) {
-        new Sortable(list, {
-            group: "shared", // Allows dragging between lists
-            animation: 150,
-            ghostClass: "sortable-ghost",
-            onEnd: function (evt) {
-                console.log(`Moved song from ${evt.from.id} to ${evt.to.id}, new index: ${evt.newIndex}`);
-            },
+    function updateListNumbers() {
+        // Update Set 1 numbering
+        document.querySelectorAll("#set1-list li").forEach((item, index) => {
+            const numberSpan = item.querySelector(".song-number");
+            if (numberSpan) {
+                numberSpan.textContent = `${index + 1}.`;
+            }
+        });
+
+        // Update Set 2 numbering
+        document.querySelectorAll("#set2-list li").forEach((item, index) => {
+            const numberSpan = item.querySelector(".song-number");
+            if (numberSpan) {
+                numberSpan.textContent = `${index + 1}.`;
+            }
         });
     }
 
-    setupSortable(availableSongs);
-    setupSortable(set1List);
-    setupSortable(set2List);
+    function setupSortable(list, setId) {
+        new Sortable(list, {
+            group: "shared",
+            animation: 150,
+            ghostClass: "sortable-ghost",
+            handle: ".drag-handle",
+            onEnd: function () {
+                setTimeout(() => {
+                    updateListNumbers(); // Ensure numbers update after drag
+                    if (setId) {
+                        saveOrder(setId, list);
+                    }
+                }, 50);
+            },
+        });
+    }
 
     function saveOrder(setId, listElement) {
         const songIds = Array.from(listElement.children).map(li => li.dataset.id);
@@ -37,38 +56,40 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error("Error:", error));
     }
 
-    document.getElementById("save-set1-order").addEventListener("click", function () {
-        saveOrder(1, set1List);
-    });
-
-    document.getElementById("save-set2-order").addEventListener("click", function () {
-        saveOrder(2, set2List);
-    });
-
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
+            document.cookie.split(";").forEach(cookie => {
+                cookie = cookie.trim();
                 if (cookie.startsWith(name + "=")) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
                 }
-            }
+            });
         }
         return cookieValue;
     }
+
+    // Setup sortable lists
+    setupSortable(set1List, 1);
+    setupSortable(set2List, 2);
+
+    // Ensure numbering updates when page loads
+    updateListNumbers();
+
+    // Handle item removal
+    [set1List, set2List].forEach(list => {
+        list.addEventListener("click", function (event) {
+            if (event.target.classList.contains("btn-danger")) {
+                setTimeout(updateListNumbers, 50); // Delay ensures removal is processed first
+            }
+        });
+    });
+
+    // Update numbers after dragging between sets
+    document.addEventListener("mouseup", () => setTimeout(updateListNumbers, 50));
 });
 
-function setupSortable(list, setId) {
-    new Sortable(list, {
-        group: "shared",
-        animation: 150,
-        ghostClass: "sortable-ghost",
-        handle: ".drag-handle", // Only allow dragging using the ☰ icon
-        onEnd: function () {
-            saveOrder(setId, list);
-        },
-    });
-}
+
+
+
+

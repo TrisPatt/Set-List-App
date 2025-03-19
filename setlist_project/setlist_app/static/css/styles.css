@@ -17,11 +17,11 @@ li {
     padding-left: 0px;
 }
 
-.list-group-item {
+.song-title {
     cursor: grab; /* Hand cursor when hovering */
 }
 
-.list-group-item:active {
+.song-title:active {
     cursor: grabbing; /* Closed hand when dragging */
 }
 

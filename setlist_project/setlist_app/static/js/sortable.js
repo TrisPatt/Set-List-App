@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
             group: "shared",
             animation: 150,
             ghostClass: "sortable-ghost",
-            handle: ".drag-handle",
+            handle: ".song-title",
             onEnd: function () {
                 setTimeout(() => {
                     updateListNumbers(); // Ensure numbers update after drag

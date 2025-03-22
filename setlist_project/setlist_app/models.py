@@ -20,6 +20,7 @@ class Setlist(models.Model):
 
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     set_number = models.IntegerField(choices=SET_CHOICES)
+    order = models.PositiveIntegerField(default=0) 
 
     class Meta:
         unique_together = ('song', 'set_number')

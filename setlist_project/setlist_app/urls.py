@@ -10,5 +10,7 @@ urlpatterns = [
     path('clear-all-from-set/<int:set_number>/', views.clear_all_from_set, name='clear_all_from_set'),
     path('clear-all-songs/', views.clear_all_songs, name='clear_all_songs'),
     path("select-songs/", select_songs, name="select-songs"),
-    path("save-set-order/", save_set_order, name="save-set-order"),
+    path("save-set-order/", views.save_set_order, name="save_set_order"),
+    path("get-set-duration/", views.get_set_duration, name="get_set_duration"),
+
 ]

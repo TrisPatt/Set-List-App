@@ -1,45 +1,33 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const set1List = document.getElementById("set1-list");
-    const set2List = document.getElementById("set2-list");
+    let songList = document.getElementById("setlist");
 
-    function updateListNumbers() {
-        // Update Set 1 numbering
-        document.querySelectorAll("#set1-list li").forEach((item, index) => {
-            const numberSpan = item.querySelector(".song-number");
-            if (numberSpan) {
-                numberSpan.textContent = `${index + 1}.`;
-            }
-        });
-
-        // Update Set 2 numbering
-        document.querySelectorAll("#set2-list li").forEach((item, index) => {
-            const numberSpan = item.querySelector(".song-number");
-            if (numberSpan) {
-                numberSpan.textContent = `${index + 1}.`;
+    if (songList) {
+        new Sortable(songList, {
+            animation: 150,
+            onEnd: function (evt) {
+                updateSetOrder();
             }
         });
     }
 
     function setupSortable(list, setId) {
         new Sortable(list, {
-            group: "shared",
+            group: "songs",
             animation: 150,
             ghostClass: "sortable-ghost",
-            handle: ".song-title",
+            handle: ".drag-handle",
             onEnd: function () {
                 setTimeout(() => {
-                    updateListNumbers(); // Ensure numbers update after drag
-                    if (setId) {
-                        saveOrder(setId, list);
-                    }
-                }, 50);
+                    updateListNumbers();
+                    saveOrder(setId, list);  // Ensure order is saved after sorting
+                }, 100);
             },
         });
     }
 
-    function saveOrder(setId, listElement) {
+    function updateSetOrder(setId, listElement) {
         const songIds = Array.from(listElement.children).map(li => li.dataset.id);
-        
+    
         fetch(`/save-set-order/`, {
             method: "POST",
             headers: {
@@ -47,12 +35,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                set_id: setId,
+                set_id: setId,  // Include set ID
                 song_ids: songIds
             }),
         })
         .then(response => response.json())
-        .then(data => console.log("Saved:", data))
+        .then(() => updateTotalDuration())  // Ensure duration updates
         .catch(error => console.error("Error:", error));
     }
 
@@ -60,36 +48,50 @@ document.addEventListener("DOMContentLoaded", function () {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
             document.cookie.split(";").forEach(cookie => {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                let trimmedCookie = cookie.trim();
+                if (trimmedCookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(trimmedCookie.substring(name.length + 1));
                 }
             });
         }
         return cookieValue;
     }
 
-    // Setup sortable lists
-    setupSortable(set1List, 1);
-    setupSortable(set2List, 2);
-
-    // Ensure numbering updates when page loads
-    updateListNumbers();
-
-    // Handle item removal
-    [set1List, set2List].forEach(list => {
-        list.addEventListener("click", function (event) {
-            if (event.target.classList.contains("btn-danger")) {
-                setTimeout(updateListNumbers, 50); // Delay ensures removal is processed first
-            }
-        });
-    });
-
-    // Update numbers after dragging between sets
-    document.addEventListener("mouseup", () => setTimeout(updateListNumbers, 50));
+    function updateSetDuration() {
+        fetch("/get-set-duration/")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("total-duration").innerText = `Total Duration: ${formatTime(data.total_duration)}`;
+            })
+            .catch(error => console.error("Error fetching duration:", error));
+    }
+    
+    function formatTime(seconds) {
+        let minutes = Math.floor(seconds / 60);
+        let remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    }
+    
+    function updateTotalDuration() {
+        function calculateDuration(setList) {
+            return Array.from(setList.children).reduce((total, li) => {
+                const match = li.querySelector(".song-title").textContent.match(/(\d+)\s*mins?\s*(\d*)\s*secs?/);
+                if (match) {
+                    const minutes = parseInt(match[1]) || 0;
+                    const seconds = parseInt(match[2]) || 0;
+                    return total + minutes * 60 + seconds;
+                }
+                return total;
+            }, 0);
+        }
+    
+        function formatDuration(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        }
+    
+        document.querySelector("#set1-list + p strong").textContent = `Total Duration: ${formatDuration(calculateDuration(set1List))}`;
+        document.querySelector("#set2-list + p strong").textContent = `Total Duration: ${formatDuration(calculateDuration(set2List))}`;
+    }
 });
-
-
-
-
-

@@ -13,12 +13,12 @@ def home(request):
     songs = Song.objects.all()
 
     # Get songs for Set 1 and Set 2
-    set1 = Setlist.objects.filter(set_number=1)
-    set2 = Setlist.objects.filter(set_number=2)
+    set1 = Setlist.objects.filter(set_number=1).order_by("order") 
+    set2 = Setlist.objects.filter(set_number=2).order_by("order") 
 
     # Calculate total set duration
-    set1_total_duration = sum((item.song.duration for item in set1), timedelta())
-    set2_total_duration = sum((item.song.duration for item in set2), timedelta())
+    set1_total_duration = sum((item.song.formatted_duration for item in set1), timedelta())
+    set2_total_duration = sum((item.song.formatted_duration for item in set2), timedelta())
 
     # Convert to MM:SS format
     def format_duration(duration):
@@ -83,20 +83,26 @@ def select_songs(request):
     return render(request, "setlist_app/select_songs.html", {"setlist": setlist})
 
 
+def get_set_duration(request):
+    total_duration = sum(song.duration for song in Song.objects.all())
+    return JsonResponse({"total_duration": total_duration})
+
+
+@csrf_exempt
 def save_set_order(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        set_id = data.get("set_id")
-        song_ids = data.get("song_ids", [])
-
         try:
-            setlist = Setlist.objects.get(id=1)
-            if set_id == 1:
-                setlist.set_1.set(song_ids, clear=True)
-            elif set_id == 2:
-                setlist.set_2.set(song_ids, clear=True)
-            return JsonResponse({"success": True, "message": "Set order updated"})
-        except Setlist.DoesNotExist:
-            return JsonResponse({"success": False, "error": "SetList not found"}, status=404)
+            data = json.loads(request.body)
+            set_id = data.get("set_id")  # Get set number
+            song_order = data.get("song_ids", [])
 
-    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+            # Update set order
+            for index, song_id in enumerate(song_order):
+                Setlist.objects.filter(song_id=song_id, set_number=set_id).update(order=index)
+
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
